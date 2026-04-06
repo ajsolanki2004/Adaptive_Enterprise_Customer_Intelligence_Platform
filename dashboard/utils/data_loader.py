@@ -9,7 +9,9 @@ def load_kpi_data(results=None):
             'revenue': '₹0', 'revenue_trend': 0,
             'at_risk': 0, 'at_risk_trend': 0,
             'growth': 0, 'growth_trend': 0,
-            'high_value': 0, 'high_value_trend': 0
+            'high_value': 0, 'high_value_trend': 0,
+            'at_risk_ratio': '1 in 0',
+            'potential_loss': '₹0'
         }
     
     combined = results.get('combined')
@@ -30,6 +32,24 @@ def load_kpi_data(results=None):
     
     high_val = len(segments[segments.get('segment_name') == 'High Value ⭐']) if not segments.empty and 'segment_name' in segments.columns else 0
     
+    # Potential Revenue Loss from at-risk customers
+    at_risk_mask = (churn['churn_risk'] == 'High 🔴') if not churn.empty and 'churn_risk' in churn.columns else None
+    at_risk_ids = churn[at_risk_mask]['customer_id'] if at_risk_mask is not None and not churn[at_risk_mask].empty else []
+    
+    potential_loss = 0
+    if not combined.empty and len(at_risk_ids) > 0:
+        potential_loss = combined[combined['customer_id'].isin(at_risk_ids)]['monetary_value'].sum()
+
+    formatted_loss = f"₹{potential_loss:,.0f}"
+    if potential_loss >= 10000000: # 1 Crore = 1,00,00,000
+        formatted_loss = f"₹{potential_loss/10000000:.1f} Cr"
+    elif potential_loss >= 100000: # 1 Lakh = 1,00,000
+        formatted_loss = f"₹{potential_loss/100000:.1f} L"
+
+    # 1 in X ratio
+    at_risk_ratio = f"1 in {round(total/at_risk) if at_risk > 0 else 0}"
+    print(f"DEBUG: Calculated at_risk_ratio as {at_risk_ratio} for at_risk={at_risk}")
+
     return {
         'total_customers': total,
         'total_customers_trend': 4.5,
@@ -40,7 +60,9 @@ def load_kpi_data(results=None):
         'growth': "15",
         'growth_trend': 4.2,
         'high_value': high_val,
-        'high_value_trend': 8.7
+        'high_value_trend': 8.7,
+        'at_risk_ratio': at_risk_ratio,
+        'potential_loss': formatted_loss
     }
 
 def load_customer_segments(results=None):
@@ -95,13 +117,35 @@ def load_customer_lookup(customer_id, results=None):
     recency = row.get('recency_days', 0)
     activity = f"Inactive ({recency} days)" if recency and recency > 30 else f"Active ({recency} days ago)" if recency else "Active"
     action = 'Standard Engagement'
-    if churn_risk == 'High 🔴':
-        action = 'Offer Discount 🎁'
-        
+    # ── AI Profile Analysis ──────────────────────────────────────────────────
+    freq = row.get('purchase_frequency', 0)
+    mon  = row.get('monetary_value', 0)
+    rec  = row.get('recency_days', 0)
+    
+    # Value Score Calculation (Normalized Frequency, Monetary, Recency)
+    norm_freq = min(freq / 20.0, 1.0)
+    norm_mon  = min(mon / 5000.0, 1.0)
+    norm_rec  = max(1.0 - (rec / 90.0), 0.0)
+    
+    value_score = int(((norm_freq + norm_mon + norm_rec) / 3.0) * 100)
+    
+    # Reason Generation
+    reasons = []
+    if norm_freq > 0.7: reasons.append("High frequency")
+    elif norm_freq < 0.3: reasons.append("Low frequency")
+    
+    if norm_rec > 0.7: reasons.append("Recent activity")
+    elif norm_rec < 0.3: reasons.append("Low recent activity")
+    
+    if not reasons: reasons = ["Consistent engagement"]
+    reason_str = ", ".join(reasons)
+
     return {
         'Customer ID': customer_id,
         'Segment': segment,
         'Customer Loss Probability': churn_risk,
         'Activity': activity,
-        'Suggested Action': action
+        'Suggested Action': action,
+        'Value Score': f"{value_score}/100",
+        'Reason': reason_str
     }

@@ -128,6 +128,44 @@ h1, h2, h3 {
     margin-bottom: 1rem;
     color: #1E3A8A;
 }
+
+.ai-summary-card {
+    background: linear-gradient(135deg, #1E293B 0%, #0F172A 100%);
+    border: 1px solid #334155;
+    border-radius: 12px;
+    padding: 24px;
+    margin-top: 20px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+}
+
+.ai-badge {
+    background: #6366F1;
+    color: #FFFFFF;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 11px;
+    text-transform: uppercase;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    margin-bottom: 15px;
+    display: inline-block;
+}
+
+.ai-score {
+    font-size: 26px;
+    font-weight: 700;
+    color: #F8FAFC;
+    margin: 10px 0;
+}
+
+.ai-reason {
+    color: #94A3B8;
+    font-size: 15px;
+    font-style: italic;
+    border-left: 3px solid #6366F1;
+    padding-left: 12px;
+    margin-top: 15px;
+}
 </style>
 """, unsafe_allow_html=True)
 
@@ -253,6 +291,10 @@ else:
         with col2:
             st.subheader("Risk Statistics")
             st.metric("Total At-Risk Customers", f"{at_risk_count:,}")
+            
+            if at_risk_count > 0:
+                st.markdown(f"#### ⚠️ {kpi_data.get('at_risk_ratio')} customers may leave soon")
+                st.markdown(f"#### 💰 Potential Revenue Loss: {kpi_data.get('potential_loss')} in next 30 days")
 
             if at_risk_count == 0:
                 st.markdown("""
@@ -294,6 +336,20 @@ else:
         
         if st.button("Search"):
             data = load_customer_lookup(customer_id, results)
-            st.markdown("### Profile")
-            for k, v in data.items():
-                st.markdown(f"**{k}:** {v}")
+            
+            st.markdown(f"""
+<div class="ai-summary-card">
+<div class="ai-badge">✨ AI Profile Summary</div>
+<div style="font-size: 14px; color: #94A3B8; margin-bottom: 4px;">Customer ID: {data['Customer ID']}</div>
+<div style="font-size: 18px; font-weight: 600; color: #F1F5F9; margin-bottom: 16px;">
+Segment: {data['Segment']} &nbsp; • &nbsp; Loss Prob: {data['Customer Loss Probability']}
+</div>
+<div class="ai-score">📊 Customer Value Score: {data['Value Score']}</div>
+<div class="ai-reason">💡 <strong>Reason:</strong> {data['Reason']}</div>
+<hr style="border: 0; border-top: 1px solid #334155; margin: 20px 0;">
+<div style="font-size: 14px; color: #F1F5F9;">
+📍 <strong>Activity:</strong> {data['Activity']}<br>
+🎁 <strong>Suggested Action:</strong> {data['Suggested Action']}
+</div>
+</div>
+""", unsafe_allow_html=True)

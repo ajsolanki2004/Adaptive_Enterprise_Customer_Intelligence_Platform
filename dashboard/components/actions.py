@@ -18,11 +18,16 @@ from datetime import datetime
 STRATEGIES = [
     {
         "key":     "at_risk",
-        "icon":    "🎁",
-        "title":   "Offer discount to at-risk customers",
+        "icon":    "🎯",
+        "title":   "Retention Campaign: Offer 10% discount to high-risk users",
         "desc":    "Target customers with high customer loss risk with a personalised discount to retain them.",
         "impact":  "Recover ~₹30,000/month",
         "color":   "#EF4444",
+        "intelligence": {
+            "confidence": "87%",
+            "roi": "3.2x"
+        },
+        "priority": "🔥 HIGH PRIORITY ACTION"
     },
     {
         "key":     "inactive",
@@ -159,6 +164,28 @@ def _inject_css():
         font-weight: 600;
         margin-left: 10px;
     }
+    .action-intelligence {
+        background: rgba(99, 102, 241, 0.1);
+        border: 1px solid rgba(99, 102, 241, 0.2);
+        border-radius: 8px;
+        padding: 10px 14px;
+        margin-top: 12px;
+        font-size: 13px;
+        color: #CBD5E1;
+    }
+    .action-priority {
+        display: inline-block;
+        background: rgba(239, 68, 68, 0.1);
+        border: 1px solid rgba(239, 68, 68, 0.3);
+        color: #F87171;
+        border-radius: 6px;
+        padding: 4px 12px;
+        font-size: 12px;
+        font-weight: 700;
+        margin-top: 12px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
     </style>
     """, unsafe_allow_html=True)
 
@@ -176,12 +203,23 @@ def render_action_cards():
         card_class = "action-card applied" if applied else "action-card"
         badge      = '<span class="applied-badge">✅ Applied</span>' if applied else ""
 
+        # ── Intelligence & Priority ───────────────────────────────────────────
+        intel_html = ""
+        if "intelligence" in s:
+            intel_html = f'<div class="action-intelligence">💡 <strong>Decision Intelligence:</strong> &nbsp; Confidence: {s["intelligence"]["confidence"]} &nbsp; Expected ROI: {s["intelligence"]["roi"]}</div>'
+        
+        priority_html = ""
+        if "priority" in s:
+            priority_html = f'<div class="action-priority">💡 <strong>PRIORITY:</strong> &nbsp; {s["priority"]}</div>'
+
         # ── Card header ──────────────────────────────────────────────────────
         st.markdown(f"""
         <div class="{card_class}">
             <div class="action-title">{s['icon']} {s['title']}{badge}</div>
             <div class="action-desc">{s['desc']}</div>
             <div class="action-impact">📈 Impact: {s['impact']}</div>
+            {intel_html}
+            {priority_html}
         </div>
         """, unsafe_allow_html=True)
 
