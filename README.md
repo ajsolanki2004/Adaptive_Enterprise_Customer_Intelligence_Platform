@@ -10,8 +10,13 @@
 *   **Autonomous ML (AutoML)**:
     *   **Drift Detection**: Automatic monitoring of statistical shifts in data distributions.
     *   **Self-Retraining Pipelines**: The system detects performance degradation and triggers retraining without manual intervention.
-*   **Executive Dashboard**: A premium, dark-mode Streamlit interface providing actionable insights, customer segmentation, and strategy recommendations.
-*   **Real-time Decision Engine**: Translates ML predictions into business strategies, such as automated discount triggers or retention campaigns.
+*   **AI Decision Intelligence Dashboard**: A premium, dark-mode Streamlit interface that includes:
+    *   **Decision Center**: Automated action simulation (retention & win-back campaigns) with priority/urgency signals and ROI estimates.
+    *   **AI Insights**: Strategic natural-language narrative generation explaining the "Why" behind the data.
+    *   **XAI Explainer**: Visual model explainability (SHAP/LIME approximations) showing exactly which behavioral traits drive predictions.
+    *   **Business Impact Layer**: Financial ROI simulation for executed strategies.
+    *   **Conversational AI Assistant**: Interactive data querying and intelligence agent.
+    *   **Feedback Loop Visualization**: Adaptive pipeline monitoring and system architecture tracking.
 *   **Scalable Infrastructure**:
     *   **Feature Store**: Centralized management for training and serving features.
     *   **Event Streaming**: Integration with Kafka for processing real-time customer behavior.
