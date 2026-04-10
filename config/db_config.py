@@ -1,10 +1,13 @@
+"""
+Database configuration and connection management.
+"""
 import psycopg2
 import os
 
 def get_connection():
     """
-    Returns a connection to the PostgreSQL database.
-    Update these credentials based on your local database setup.
+    Establishes and returns a connection to the PostgreSQL database.
+    Defaults to local credentials if environment variables are unset.
     """
     dbname = os.getenv("DB_NAME", "enterprise_segmentation_v2")
     user = os.getenv("DB_USER", "postgres")

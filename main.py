@@ -1,3 +1,7 @@
+"""
+Main entry point for the AECIP platform.
+Provides a unified command-line interface for training, prediction, monitoring, and web services.
+"""
 import argparse
 import subprocess
 import os

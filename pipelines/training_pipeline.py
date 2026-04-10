@@ -1,3 +1,7 @@
+"""
+Orchestrates the complete data preparation and model training lifecycle.
+Includes feature engineering, segmentation, and automated model tuning.
+"""
 from features.feature_engineering import generate_features
 from segmentation.adaptive_segmentation import AdaptiveSegmentation
 from models.churn_model import ChurnModel

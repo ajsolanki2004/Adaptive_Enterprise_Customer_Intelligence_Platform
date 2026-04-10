@@ -1,3 +1,7 @@
+"""
+Database initialization routine.
+Handles database creation, schema execution, and dummy data generation.
+"""
 import psycopg2
 from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
 import os

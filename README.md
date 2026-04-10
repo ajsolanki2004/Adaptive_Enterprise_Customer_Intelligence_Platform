@@ -61,9 +61,11 @@
 3.  **Run the Platform**:
     Use the `main.py` CLI to launch different modules:
     *   **Train Models**: `python main.py --mode train`
+    *   **Run Predictions**: `python main.py --mode predict --customer_id 1`
     *   **Start Dashboard**: `python main.py --mode dashboard`
     *   **Start API**: `python main.py --mode api`
     *   **Monitor Drift**: `python main.py --mode monitor`
+    *   **Simulate Event Stream**: `python main.py --mode stream`
 
 ---
 

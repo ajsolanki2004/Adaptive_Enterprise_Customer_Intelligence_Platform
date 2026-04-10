@@ -1,3 +1,7 @@
+"""
+RESTful API for the AECIP platform.
+Exposes predictions and customer intelligence via HTTP endpoints.
+"""
 from flask import Flask, request, jsonify
 from decision_engine.action_recommender import ActionRecommender
 from models.churn_model import ChurnModel
@@ -6,6 +10,7 @@ import pandas as pd
 
 app = Flask(__name__)
 
+# Initialize predictive models
 churn_model = ChurnModel()
 clv_model = CLVModel()
 
