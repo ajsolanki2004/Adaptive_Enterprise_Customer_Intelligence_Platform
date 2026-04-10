@@ -6,19 +6,21 @@ class ActionRecommender:
         """
         Evaluates predictions to assign standard marketing actions.
         """
-        # Handling high-risk customers based on value
+        # Scenario 1: Red Alert - Customer is highly likely to leave (60%+)
         if churn_prob > 0.6:
+            # Check their lifetime value. Are they worth saving?
             if clv > 2000:
-                return "Retention Campaign - VIP Offer"
+                return "Retention Campaign - VIP Offer" # Very valuable, throw money at them
             else:
-                return "Discount Campaign - Win-Back"
+                return "Discount Campaign - Win-Back"   # Low value, send a standard discount
                 
-        # Handling low-risk, high engagement
+        # Scenario 2: High Loyalty - Customer is very unlikely to leave (< 30%)
         if churn_prob < 0.3:
+            # Check value
             if clv > 3000:
-                return "Premium Cross-Sell / Upsell"
+                return "Premium Cross-Sell / Upsell"    # Whale customer, sell them more
             else:
-                return "Loyalty Reward Program Invite"
+                return "Loyalty Reward Program Invite"  # Standard loyalist, keep them engaged
                 
-        # Moderate risk/value 
+        # Scenario 3: Everyone else in the middle
         return "Standard Monthly Newsletter"

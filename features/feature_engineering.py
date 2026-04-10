@@ -10,6 +10,7 @@ def generate_features():
     Saves the computed features to the customer_features table.
     """
     try:
+        # 1. Open database connection and select all raw transaction logs
         conn = get_connection()
         query = "SELECT * FROM transactions"
         df = pd.read_sql(query, conn)
@@ -19,29 +20,32 @@ def generate_features():
             conn.close()
             return
 
-        # Feature Engineering: RFM (Recency, Frequency, Monetary) style
-        # 1. total_spend: Sum of amounts
-        # 2. purchase_frequency: Count of transactions
-        # 3. avg_purchase_value: Mean of amounts
-        # 4. recency_days: Days since last purchase (relative to max date in dataset)
+        # 2. Feature Engineering: We are building an RFM (Recency, Frequency, Monetary) matrix.
+        # Machine learning models can't easily read loose lists of transactions. 
+        # They need flat, aggregated behaviors per customer.
         
-        # Convert purchase_date to datetime if not already
+        # Ensure our timestamps are explicitly typed
         df['purchase_date'] = pd.to_datetime(df['purchase_date'])
+        
+        # Calculate the absolute newest date in the dataset to act as "today" for 'Recency' calculations
         max_date = df['purchase_date'].max()
         
+        # 3. Aggregate all loose transactions into 4 distinct macro-level behavioral metrics
         features = df.groupby('customer_id').agg(
-            total_spend=('amount', 'sum'),
-            purchase_frequency=('amount', 'count'),
-            avg_purchase_value=('amount', 'mean'),
-            last_purchase=('purchase_date', 'max')
+            total_spend=('amount', 'sum'),           # Overall lifetime value so far
+            purchase_frequency=('amount', 'count'),  # How many total separate orders they placed
+            avg_purchase_value=('amount', 'mean'),   # How much they spend per visit on average
+            last_purchase=('purchase_date', 'max')   # Exact datetime of their final order
         ).reset_index()
         
+        # 4. Transform 'last_purchase' into a physical integer ('days since last seen')
         features['recency_days'] = (max_date - features['last_purchase']).dt.days
         features.drop(columns=['last_purchase'], inplace=True)
         
-        # Save to database (Upsert)
+        # 5. Save the engineered ML features back to the database using an "Upsert"
         cursor = conn.cursor()
         for _, row in features.iterrows():
+            # If the feature row already exists, update it. If not, insert it.
             cursor.execute("""
                 INSERT INTO customer_features (customer_id, avg_purchase_value, purchase_frequency, recency_days, total_spend)
                 VALUES (%s, %s, %s, %s, %s)

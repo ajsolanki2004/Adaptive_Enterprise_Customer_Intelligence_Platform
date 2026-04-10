@@ -24,6 +24,8 @@ class ModelTuner:
         
     def tune_and_select(self, df):
         print("Starting AutoML Tuning...")
+        
+        # 1. Validate the incoming dataset
         if self.target_col not in df.columns:
              print(f"Target column '{self.target_col}' not found in data.")
              return None
@@ -35,18 +37,21 @@ class ModelTuner:
             print("Not enough data to run AutoML")
             return None
             
+        # 2. Split into Train vs Test
         X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
         
         best_acc = 0
         best_model_name = ""
         best_model = None
         
+        # 3. The crux of AutoML: Loop through multiple top-tier algorithms automatically
         for name, model in self.models.items():
-            model.fit(X_train, y_train)
-            preds = model.predict(X_test)
-            acc = accuracy_score(y_test, preds)
+            model.fit(X_train, y_train)                 # Train each model
+            preds = model.predict(X_test)               # Predict against the test set
+            acc = accuracy_score(y_test, preds)         # Grade the accuracy
             print(f"{name} accuracy: {acc:.4f}")
             
+            # 4. Keep track of the absolute winner
             if acc > best_acc:
                 best_acc = acc
                 best_model_name = name
@@ -54,12 +59,12 @@ class ModelTuner:
                 
         print(f"Best model selected: {best_model_name} with API: {best_acc:.4f}")
         
-        # Save best model to disk
+        # 5. Persist the winning model physically to disk
         model_path = "models/saved/best_automl_model.pkl"
         os.makedirs(os.path.dirname(model_path), exist_ok=True)
         joblib.dump(best_model, model_path)
         
-        # Register best model in DB
+        # 6. Document the winning AI in PostgreSQL for system transparency
         RegistryManager.register_model(
             name=f"automl_{self.target_col}_{best_model_name}",
             version=1,

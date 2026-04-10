@@ -26,13 +26,17 @@ class CLVModel:
 
     def train(self):
         print("Training CLV Model...")
+        
+        # 1. Pull the absolute latest engineered features from the Postgres Feature Store
         df = FeatureRegistry.get_all_features()
         if df is None or df.empty:
             print("No data available for training.")
             return None
 
+        # 2. Synthesize the Customer Lifetime Value (CLV) targets if missing historicals
         df = self.create_synthetic_labels(df)
         
+        # 3. Separate inputs (features) from the target (Future revenue)
         X = df.drop(columns=['customer_id', 'future_clv'])
         y = df['future_clv']
         
@@ -40,15 +44,19 @@ class CLVModel:
              print("Not enough data to train.")
              return None
              
+        # 4. Train-test split (80% training data, 20% validation data)
         X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
         
+        # 5. Build a Gradient Boosting Regressor (outputs continuous numbers/dollars instead of probabilities)
         self.model = GradientBoostingRegressor(n_estimators=100, random_state=42)
         self.model.fit(X_train, y_train)
         
+        # 6. Evaluate error margins using Root Mean Squared Error (RMSE)
         preds = self.model.predict(X_test)
         rmse = np.sqrt(mean_squared_error(y_test, preds))
         print(f"CLV Model trained with RMSE: {rmse:.2f}")
         
+        # 7. Save model to disk for fast API loading
         os.makedirs(os.path.dirname(self.model_path), exist_ok=True)
         joblib.dump(self.model, self.model_path)
         print(f"Model saved to {self.model_path}")

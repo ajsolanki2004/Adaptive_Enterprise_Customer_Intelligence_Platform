@@ -21,13 +21,18 @@ class AdaptiveSegmentation:
         best_score = -1
         
         print("Evaluating multiple cluster sizes for Adaptive Segmentation...")
+        
+        # 1. We don't know how many distinct "personas" exist in the data yet
+        # 2. Loop through 2, 3, 4, 5, and 6 cluster arrangements to test them
         for k in range(self.min_clusters, self.max_clusters + 1):
             model = KMeans(n_clusters=k, random_state=42, n_init=10)
             labels = model.fit_predict(data)
-            score = silhouette_score(data, labels)
             
+            # 3. Calculate Silhouette Score (how well-spaced boundaries are)
+            score = silhouette_score(data, labels)
             print(f"k={k} score={score:.4f}")
             
+            # 4. Save the cluster amount (K) that resulted in the mathematically cleanest boundaries
             if score > best_score:
                 best_score = score
                 best_k = k
@@ -37,22 +42,30 @@ class AdaptiveSegmentation:
         
     def run_segmentation(self):
         """Main orchestrator for clustering"""
+        # 1. Pull the pre-calculated behavior traits from the registry
         df = FeatureRegistry.get_all_features()
         if df is None or df.empty:
             print("No features available for segmentation.")
             return None
             
+        # 2. Remove the customer_id string, as K-Means only handles raw numbers
         clustering_data = df.drop(columns=['customer_id'])
+        
+        # 3. Scale all data so things like "Total Spend" ($500) don't vastly outweigh "Recency" (3 days)
         scaled_data = self.scaler.fit_transform(clustering_data)
         
+        # 4. Automatically figure out how many segments currently exist using Silhouette math
         best_k = self.find_best_k(scaled_data)
         
-        # Fit with best K
+        # 5. Fit the final K-Means model using the optimized value of K and generate assigned labels
         model = KMeans(n_clusters=best_k, random_state=42, n_init=10)
         labels = model.fit_predict(scaled_data)
         
+        # 6. Map the resulting AI grouping IDs back to the real customer IDs
         df['segment_id'] = labels
         result_df = df[['customer_id', 'segment_id']]
+        
+        # 7. Write the final assignments back to PostgreSQL
         self.save_results(result_df)
         return result_df
         

@@ -17,22 +17,24 @@ class MockKafkaConsumer:
         print("Consumer listening for events...")
         try:
             while True:
+                # 1. Constantly poll the event bus for new user traffic
                 if not message_queue.empty():
                     msg_str = message_queue.get()
                     event = json.loads(msg_str)
                     print(f"\n[Consumer] Received event: {event['event_type']} from customer {event['customer_id']}")
                     
-                    # 1. Update features in real time
+                    # 2. Re-calculate the customer's Machine Learning traits instantly in the database
                     self.feature_updater.update(event)
                     
-                    # 2. Assign action based on inferences
-                    # Simulating inferences to avoid full DB loads in the event loop for this demo
+                    # 3. Simulate grabbing the current AI predictions for this user
+                    # (In a true production environment, we'd query the DB or call the models here)
                     mock_predictions = {
                         'segment_id': random.randint(0, 3),
                         'churn_risk': random.uniform(0.1, 0.9),
                         'predicted_clv': random.uniform(100, 3000)
                     }
                     
+                    # 4. Pass the real-time activity and the AI scores into the Business Logic Engine
                     self.action_engine.process_event(event['customer_id'], mock_predictions)
                     
                 time.sleep(0.1)

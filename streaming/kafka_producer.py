@@ -16,12 +16,17 @@ class MockKafkaProducer:
         print(f"[Producer] Sent: {message}")
 
 def simulate_events():
+    """
+    Simulates a high-throughput event stream of customer actions on an e-commerce platform.
+    In a real environment, this data comes directly from frontend web logs or a mobile app.
+    """
     producer = MockKafkaProducer()
     event_types = ["purchase", "login", "page_view"]
     
     print("Starting event simulation. Press Ctrl+C to stop.")
     try:
         while True:
+            # 1. Construct a dummy JSON payload identical to what a web tracking pixel would send
             event = {
                 "event_id": random.randint(1000, 9999),
                 "customer_id": random.randint(1, 100),
@@ -29,7 +34,11 @@ def simulate_events():
                 "amount": round(random.uniform(10.0, 500.0), 2) if random.random() > 0.5 else 0.0,
                 "timestamp": time.time()
             }
+            
+            # 2. Push the payload onto the simulated Kafka bus
             producer.produce(json.dumps(event))
+            
+            # Simulate irregular real-world timing between user clicks
             time.sleep(random.uniform(0.5, 3.0))
     except KeyboardInterrupt:
         print("Producer stopped.")
