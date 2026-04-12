@@ -271,7 +271,7 @@ else:
     if page == "overview":
         st.markdown("""
         <div style='margin-bottom:4px'>
-            <span style='font-size:12px; color:#6366F1; text-transform:uppercase; letter-spacing:2px;'>CEO Dashboard</span>
+            <span style='font-size:12px; color:#6366F1; text-transform:uppercase; letter-spacing:2px;'>Dashboard</span>
         </div>
         """, unsafe_allow_html=True)
         st.header("Executive Overview")

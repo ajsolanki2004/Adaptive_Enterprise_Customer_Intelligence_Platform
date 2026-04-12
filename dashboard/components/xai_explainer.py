@@ -150,16 +150,22 @@ def render_xai_explainer():
             else:
                 badge_cls = "risk-badge-low"
 
+            st.markdown("<div class='xai-card'>", unsafe_allow_html=True)
+            
+            # Integrated Customer Header
             st.markdown(f"""
-            <div style='margin-bottom:14px'>
-                <span style='color:#94A3B8; font-size:14px'>Customer <b style='color:#F1F5F9'>#{selected_id}</b>
-                &nbsp;|&nbsp; Segment: <b style='color:#F1F5F9'>{seg}</b>
-                &nbsp;|&nbsp; </span>
-                <span class='{badge_cls}'>Risk: {risk}</span>
+            <div style='margin-bottom:20px; padding-bottom:16px; border-bottom:1px solid #334155;'>
+                <span style='color:#94A3B8; font-size:13px; text-transform:uppercase; letter-spacing:1px;'>Inspecting Profile</span><br/>
+                <div style='margin-top:8px; display:flex; align-items:center; gap:12px;'>
+                    <span style='font-size:18px; font-weight:700; color:#F1F5F9'>Customer #{selected_id}</span>
+                    <span style='color:#475569'>•</span>
+                    <span style='font-size:14px; color:#94A3B8'>Segment: <b style='color:#F1F5F9'>{seg}</b></span>
+                    <span style='color:#475569'>•</span>
+                    <span class='{badge_cls}'>Risk: {risk}</span>
+                </div>
             </div>
             """, unsafe_allow_html=True)
 
-            st.markdown("<div class='xai-card'>", unsafe_allow_html=True)
             st.markdown("##### ⚖️ Driving Factors vs. Population Median")
 
             recency  = cust_data.get('recency_days', 0)

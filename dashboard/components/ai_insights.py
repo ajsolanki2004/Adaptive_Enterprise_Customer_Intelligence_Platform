@@ -246,7 +246,7 @@ def render_ai_insights():
     # ── Diagnostic Risk Explanation ───────────────────────────────────────────
     with col2:
         st.markdown("### 🔴 Diagnostic Risk Explanation")
-        st.caption("Causal storytelling — why customers are at risk.")
+        st.caption("Why customers are at risk.")
 
         if 'churn_risk' in df.columns:
             high_risk = df[df['churn_risk'] == 'High 🔴']
