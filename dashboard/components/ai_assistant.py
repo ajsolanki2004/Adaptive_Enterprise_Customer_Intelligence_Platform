@@ -273,7 +273,7 @@ def render_ai_assistant():
     """, unsafe_allow_html=True)
 
     st.markdown("### 💬 Conversational Intelligence Engine")
-    st.caption("Ask questions about your customers in plain English — powered by AECIP AI.")
+    st.caption("Ask questions about your customers in English — powered by AECIP AI.")
 
     # ── Quick Prompts ─────────────────────────────────────────────────────────
     st.markdown("**Quick questions:**")
