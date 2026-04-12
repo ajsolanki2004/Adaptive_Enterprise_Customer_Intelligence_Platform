@@ -26,7 +26,12 @@ def load_kpi_data(results=None):
     total = len(combined)
     
     rev = combined['monetary_value'].sum() if 'monetary_value' in combined.columns else 0
-    formatted_rev = f"₹{rev:,.0f}" if rev < 100000 else f"₹{rev/100000:.1f}L"
+    if rev >= 10000000:
+        formatted_rev = f"₹{rev/10000000:.2f} Cr"
+    elif rev >= 100000:
+        formatted_rev = f"₹{rev/100000:.1f} Lakhs"
+    else:
+        formatted_rev = f"₹{rev:,.0f}"
     
     at_risk = len(churn[churn.get('churn_risk') == 'High 🔴']) if not churn.empty and 'churn_risk' in churn.columns else 0
     
